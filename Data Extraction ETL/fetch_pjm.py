@@ -60,7 +60,7 @@ if args.list is True:
 if args.url:
     # This gets the actual URL based on the URL key passed
     url = get_pjm_url(args.url)
-    logger.info("Set url to %s" % url)
+    logger.info(f"Set url to {url}")
 else:
     exit()
 
@@ -69,17 +69,14 @@ response = requests.get(url, headers=headers)
 logger.info(f"Received response {response.status_code}")
 
 # command line arg --output overrides the default filename
-if args.output:
-    output = args.output
-else:
-    # create default filename
-    output = (
-        args.url
-        + "-"
-        + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        + "."
-        + args.format
-    )
+output = (
+    args.output
+    if args.output
+    else f"{args.url}-"
+    + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    + "."
+    + args.format
+)
 logger.info(f"Writing {args.format} - {output}")
 # if --format is "raw" then just print out what we got from PJM
 if args.format == "raw":

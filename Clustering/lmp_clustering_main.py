@@ -64,10 +64,17 @@ def basic_stats(df):
         cnt_over_mean = dummy[dummy['total_lmp_rt'] > t[1]].count()[0]
         results = [i, t[1], t[2], t[3], t[7], cnt_over_mean]
         all_nodes.append(results)
-    stats = pd.DataFrame(all_nodes, columns=['pnode_id', 'mean', 
-                                             'standard_deviation', 'min', 
-                                             'max','count_over_mean'])
-    return stats
+    return pd.DataFrame(
+        all_nodes,
+        columns=[
+            'pnode_id',
+            'mean',
+            'standard_deviation',
+            'min',
+            'max',
+            'count_over_mean',
+        ],
+    )
     
 def extract_features(df):
     return tsfeatures(df, freq=24) #data.to_csv('features.csv')
@@ -82,8 +89,7 @@ def feature_reduction(features):
     fit = pca.fit_transform(X)
     pca_df = pd.DataFrame(data = fit,columns = ['pca_1', 
                                                 'pca_2'])
-    output = pd.concat([pca_df, dummy], axis = 1)
-    return output
+    return pd.concat([pca_df, dummy], axis = 1)
 
 def plot(inertia):
     plt.figure(1 , figsize = (15 ,6))

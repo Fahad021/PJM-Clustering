@@ -64,10 +64,17 @@ def basic_stats(df):
         cnt_over_mean = dummy[dummy['total_lmp_rt'] > t[1]].count()[0]
         results = [i, t[1], t[2], t[3], t[7], cnt_over_mean]
         all_nodes.append(results)
-    stats = pd.DataFrame(all_nodes, columns=['pnode_id', 'mean', 
-                                             'standard_deviation', 'min', 
-                                             'max','count_over_mean'])
-    return stats
+    return pd.DataFrame(
+        all_nodes,
+        columns=[
+            'pnode_id',
+            'mean',
+            'standard_deviation',
+            'min',
+            'max',
+            'count_over_mean',
+        ],
+    )
     
 def extract_features(df):
     return tsfeatures(df, freq=24) #data.to_csv('features.csv')
@@ -82,8 +89,7 @@ def feature_reduction(features):
     fit = pca.fit_transform(X)
     pca_df = pd.DataFrame(data = fit,columns = ['pca_1', 
                                                 'pca_2'])
-    output = pd.concat([pca_df, dummy], axis = 1)
-    return output
+    return pd.concat([pca_df, dummy], axis = 1)
 
 def plot(inertia):
     plt.figure(1 , figsize = (15 ,6))
@@ -163,14 +169,14 @@ def generate_8760s():
     columns = ['datetime_beginning_ept', 'pnode_id',
            'pnode_name', 'total_lmp_rt']
     df = df[columns]
-    df['datetime_beginning_ept'] = pd.to_datetime(df['datetime_beginning_ept']) 
+    df['datetime_beginning_ept'] = pd.to_datetime(df['datetime_beginning_ept'])
     col_list = ['unique_id','cluster_id']
     data = pd.read_csv('output_with_feature_reduction.csv', usecols=col_list)
     no_of_groups = len(data['cluster_id'].unique())
     total = data.groupby(['cluster_id']).count().iloc[:,0].values.tolist()
     for c in range(0,no_of_groups):
-        exec('group_{}= create_df()'.format(c))
-    
+        exec(f'group_{c}= create_df()')
+
     for i in range(0,data.shape[0]):
         pnode = data.iloc[i,0]
         cluster = data.iloc[i,1]
@@ -184,7 +190,7 @@ def generate_8760s():
             dummy = pd.DataFrame(dummy, columns=['total_lmp_rt'])
             group_0[str(pnode)] = dummy['total_lmp_rt'].values
 
-        if cluster == 1:
+        elif cluster == 1:
             dummy = df[df.pnode_id == pnode]
             dummy.drop_duplicates(subset="datetime_beginning_ept",
                               keep=False, inplace=True)
@@ -194,7 +200,7 @@ def generate_8760s():
             dummy = pd.DataFrame(dummy, columns=['total_lmp_rt'])
             group_1[str(pnode)]= dummy['total_lmp_rt'].values
 
-        if cluster == 2:
+        elif cluster == 2:
             dummy = df[df.pnode_id == pnode]
             dummy.drop_duplicates(subset="datetime_beginning_ept",
                               keep=False, inplace=True)
@@ -203,15 +209,15 @@ def generate_8760s():
             dummy = dummy.bfill()
             dummy = pd.DataFrame(dummy, columns=['total_lmp_rt'])
             group_2[str(pnode)] = dummy['total_lmp_rt'].values
-            
+
     group_0['value'] = group_0.iloc[:,0:total[0]].sum(axis=1)
     group_1['value'] = group_1.iloc[:,0:total[1]].sum(axis=1)
     group_2['value'] = group_2.iloc[:,0:total[2]].sum(axis=1)
-     
+
     group_0['value'] = group_0['value']/total[0]
     group_1['value'] = group_1['value']/total[1]
     group_2['value'] = group_2['value']/total[2]
-     
+
     group_0.to_csv('8760_cluster_0.csv')
     group_1.to_csv('8760_cluster_0.csv')
     group_2.to_csv('8760_cluster_0.csv')

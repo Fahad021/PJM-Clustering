@@ -7,8 +7,6 @@ def get_subsription_headers():
     settings = response.json()
     key = settings["subscriptionKey"]
 
-    # create header with subscription key
-    headers = {
+    return {
         "Ocp-Apim-Subscription-Key": key,
     }
-    return headers

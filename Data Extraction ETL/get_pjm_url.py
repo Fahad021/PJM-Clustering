@@ -7,10 +7,14 @@ headers = get_subsription_headers()
 
 
 def get_url(name, links_json):
-    for link in links_json["items"]:
-        if name in link["name"]:
-            return link["links"][0]["href"]
-    return None
+    return next(
+        (
+            link["links"][0]["href"]
+            for link in links_json["items"]
+            if name in link["name"]
+        ),
+        None,
+    )
 
 
 def get_pjm_links():
@@ -18,8 +22,7 @@ def get_pjm_links():
     # fetch data at URL
     response = requests.get(url, headers=headers)
 
-    links = response.json()
-    return links
+    return response.json()
 
 
 def get_pjm_list():
@@ -29,6 +32,4 @@ def get_pjm_list():
 def get_pjm_url(name):
     links = get_pjm_links()
 
-    feed_url = get_url(name, links)
-
-    return feed_url
+    return get_url(name, links)
